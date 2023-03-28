@@ -1,9 +1,10 @@
 import random
 
 class TuttiFrutti:
-    def __init__(self, rondas=3,jugadores=2,n_cat=3):
+    def __init__(self, rondas=3,cant_jugadores=2,n_cat=3):
+        self.cant_jugadores = cant_jugadores
         self.rondas = rondas
-        self.jugadores = jugadores
+        self.jugadores = []
         self.categorias = {}
         self.categorias_pret = ["animales",  "paises",   "Nombres",    "peliculas",
                                 "series",    "ropa",     "deportes",   "peces",
@@ -12,7 +13,16 @@ class TuttiFrutti:
         
         self.elegir_categorias(n_cat)
         self.palabras = {cat: '' for cat in self.categorias.keys()}
+        self.esperar_jugador()
 
+        
+    def esperar_jugador(self):
+        while self.jugadores != self.cant_jugadores:
+            print("Esperando a los jugadores...")
+            self.jugadores.append(input(f"nombre del jugador{len(self.jugadores)+1}"))
+            print(f"Bienvenido {self.jugadores[-1]}")
+        print("La partida ya esta llena, empezamos!")
+            
         
     def elegir_categorias(self,n_cat):
         new_cat = ''
