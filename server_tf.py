@@ -1,26 +1,41 @@
-import click , sys , socket , concurrent.futures , subprocess as sp
+import socket , click , multiprocessing
 
 @click.command()
-@click.option('-p',default=5000,help='Puerto del servidor')
-# @click.option('-c',default='t',help='(t) Para que el servidor utilice hilos o  (p) para que utilice procesos')
+@click.option('--host', '-h', default='', help='Host IP to bind server to. Default is all available interfaces.')
+@click.option('--port', '-p', default=8000, type=int, help='Port to bind server to. Default is 8000.')
 
-class Server:
+
+def server(host, port):
+    backlog = 5
+    sock = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sock.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, 0)
+    sock.bind((host, port))
+    sock.listen(backlog)
+    print(f"Server listening on {host}:{port}")
     
-    def __init__(self):
-        self.host = "localhost"
-        executor = concurrent.futures.ProcessPoolExecutor(max_workers=2)
-        print('Iniciando server...\nEsperando a un cliente...')                               
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM,) as server:
-            server.bind((host,p))
-            server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            server.listen(5)
-            while True:
-                clientsocket = server.accept()
-                executor.submit(self.handle,clientsocket)
-                
-                
-    def handle(self):
-        pass
-                
-if __name__ == "__main__":
-    servidor = Server()
+    while True:
+        client, address = sock.accept()
+        print(f"Accepted connection from {address[0]}:{address[1]}")
+        
+        #usar multiprocessing para aceptar conexiones en paralelo
+        # recibir los parametros del cliente y tomar una decision
+        #   segun los parametros que pase el cliente debe crear_partida()
+        #   o Asignar_jugador() a una partida ya creada
+        
+        client.close()
+
+
+def crear_partida():
+    #instanciar partida
+    while True: #esperar a que se llene de jugadores
+        break
+    pass
+    
+def asignar_jugador(): #ver si conviene que este aca, o que sea un metodo de la clase TF
+    pass
+
+
+
+if __name__ == '__main__':
+    server()
