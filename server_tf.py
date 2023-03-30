@@ -1,4 +1,4 @@
-import socket , click , multiprocessing , pickle , os , sys
+import socket , click , multiprocessing , pickle , os , sys , mmap
 
 class Server:
     
@@ -6,7 +6,9 @@ class Server:
         self.host = host
         self.port = port
         self.backlog = backlog
-        self.q = multiprocessing.Queue()   
+        # self.memoria = mmap.mmap(-1,100)
+        # self.q = multiprocessing.Queue()
+        self.conections = {}
         self.set_socket()
         self.serve()
         
@@ -34,6 +36,8 @@ class Server:
         
 
     def handle(self,client):
+        self.q.put(client)
+        print(f"MEMORIA: {self.memoria}")
         data = b'' + client.recv(4096)
         pet = pickle.loads(data)
         print(f"soy el nuevo proceso :D, mi PID es:{os.getpid()}")

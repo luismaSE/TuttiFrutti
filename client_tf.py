@@ -3,15 +3,15 @@ import socket, sys , click , pickle
 
 @click.command()
 @click.option('-h','host',default="localhost",help='')
-@click.option('-ipv4',is_flag=True, flag_value=True,help="Espicifiación para realizar la conexion mediante IPv4")
-@click.option('-ipv6',is_flag=True, flag_value=True,help="Espicifiación para realizar la conexion mediante IPv6")
+@click.argument('-n','--nickname',help="Ingresa tu nombre de usuario")
+@click.option('-ipv4',is_flag=True, flag_value=True,help="Espicifiación para realizar la conexion mediante IPv4, si no se especifica se utilizará IPv6")
 @click.option('-p','--port',default=5000,help="puerto del server donde a conectar")
 @click.option('-m','--match',default= 0 ,help="Codigo de la partida a la que me quiero unir")
 @click.option('-r','--rounds',default=3,help="Cantidad de las rondas de la partida")
 @click.option('-c','--categories',default=3,help="Cantidad de categorias que tendrá la partida")
 @click.option('-s','--size',default=2,help="Cantidad de jugadores")
 
-def client(host,ipv4,ipv6,port,match,rounds,categories,size):
+def client(host,nickname,ipv4,port,match,rounds,categories,size):
     if ipv4 == True:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     else:
@@ -19,9 +19,9 @@ def client(host,ipv4,ipv6,port,match,rounds,categories,size):
     
     s.connect((host,int(port)))
     if  not match:
-        petition = pickle.dumps([rounds,categories,size])
+        petition = pickle.dumps([nickname,rounds,categories,size])
     else:
-        petition = pickle.dumps(match)
+        petition = pickle.dumps((nickname,match))
     s.sendall(petition)
     
 
