@@ -36,8 +36,8 @@ class Server:
         
 
     def handle(self,client):
-        self.q.put(client)
-        print(f"MEMORIA: {self.memoria}")
+        # self.q.put(client)
+        # print(f"MEMORIA: {self.memoria}")
         data = b'' + client.recv(4096)
         pet = pickle.loads(data)
         print(f"soy el nuevo proceso :D, mi PID es:{os.getpid()}")

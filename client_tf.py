@@ -3,7 +3,7 @@ import socket, sys , click , pickle
 
 @click.command()
 @click.option('-h','host',default="localhost",help='')
-@click.argument('-n','--nickname',help="Ingresa tu nombre de usuario")
+@click.option('-n','--nickname',default='invitado',help="Ingresa tu nombre de usuario")
 @click.option('-ipv4',is_flag=True, flag_value=True,help="Espicifiación para realizar la conexion mediante IPv4, si no se especifica se utilizará IPv6")
 @click.option('-p','--port',default=5000,help="puerto del server donde a conectar")
 @click.option('-m','--match',default= 0 ,help="Codigo de la partida a la que me quiero unir")
