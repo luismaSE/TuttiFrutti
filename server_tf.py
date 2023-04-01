@@ -7,7 +7,7 @@ class Server:
         self.host = host
         self.port = port
         self.backlog = backlog
-        self.array = []
+        self.array = []          # Funciona como una forma para que los hilos se sincronicen sin IPC
         self.conections = {}
         self.event = multiprocessing.Event()
         self.set_socket()
@@ -23,45 +23,47 @@ class Server:
         
         
     def serve(self):
-        print(f"PID del padre; {os.getpid()}")        
         while True:
-            array = multiprocessing.Array('c',[])
-            client, address = self.sock.accept()
-            print(f"Accepted connection from {address[0]}:{address[1]}")
-            threading.Thread(target=self.handle,args=(client,array),daemon=True).start()      
+            client, address = self.sock.accept()                                                            # El server solo acepta la conexión
+            print(f"Accepted connection from {address[0]}:{address[1]}")            
+            threading.Thread(target=self.handle,args=(client,),daemon=True).start()                         # Se la pasamos a un proceso hijo para que la maneje     
             
 
-    def handle(self,client,array):
-        code = "777"
-        data = b'' + client.recv(4096)
+    def handle(self,client):
+        code = "777"                                     # TO DO: Metodo para generar un codigo unico para cada partida
+        
+        data = b'' + client.recv(4096)                                                                      # Espera a recibir los parametros de peticion del cliente
         pet = pickle.loads(data)
-        self.conections[pet[0]] = client
+        self.conections[pet[0]] = client                                                                    # Dejamos un registro de todas las conexiones que recibe el server 
+        print(f"conns>>>{self.conections}")
+
+        if len(pet) == 2:                                                                                   # Se quiere unir a una partida
+            self.array.append((str(pet[0])+"#"+str(pet[1])))                                                   # Agrega una entrada al array
+            self.event.set()                                                                                   # Avisa a las partidas esperando
+        elif len(pet) == 4:                                                                                # QUiere crear una partida nueva
+            jugadores = self.esperar_jugadores(code,pet[0],pet[2])                                             # La partida no va a empezar hasta que este llena
+            party = {}                                                                                             # Diccionario para pasarle al proceso de la partida cada usuario con su propia coneccion
+            for nick in jugadores:                               
+                party[nick] = self.conections[nick]                                                         # Usamos el nick del cliente para buscar su socket en el registro de conecciones 
+            print(f"party>>{party}")                                                                           # Para luego pasarselo al Proceso que ejecutará la partida
+            tf = TuttiFrutti(party,pet[1],pet[3])                                                           #Recibe :
+            client.close()                                                                                    # 1 los jugadores con sus conexiones
+            #                                                                                                  # 2 cantidad de rondas
+            #                                                                                                  # 3 cantidad de categorias
         
         
-        if len(pet) == 2: #Se quiere unir a una partida
-            self.array.append((str(pet[0])+"#"+str(pet[1])))
-            self.event.set()
-        elif len(pet) == 4:
-            jugadores = self.esperar_jugadores(code,pet[0],pet[2])
-            party = {}
-            for nick in jugadores:
-                party[nick] = self.conections[nick]
-            print(f"party>>{party}")
-            tf = TuttiFrutti(party,pet[1],pet[2],pet[3])
-                
-        client.close()
         
         
-    def esperar_jugadores(self,code,owner,size):
-        lista = []
-        lista.append(owner)
-        while len(lista) != size:
-            self.event.wait()
-            waiting = [string for string in self.array if code in string]
-            if len(waiting) != 0:
-                for player in waiting:
-                    nick , line_code = player.split('#') 
-                    lista.append(nick)
+    def esperar_jugadores(self,code,owner,size):                                                            # Entran solo los procesos cuyo cliente quiera crear una partida
+        lista = []                              
+        lista.append(owner)                             
+        while len(lista) != size:                                                                              # No salen del bucle de espera hasta que se llene la partida
+            self.event.wait()                                                                                      # Espera hasta que un proceso actualice la lista de espera, osea que un cliente se quiere unir a una partida
+            waiting = [string for string in self.array if code in string]                                              # Revisa la lista y guarda todas las peticiones con el codigo de mi partida
+            if len(waiting) != 0:                               
+                for player in waiting:                              
+                    nick , line_code = player.split('#')                                
+                    lista.append(nick)                                                                      # Ya sabemos el codigo, asi que solo nos interesa el nombre del jugador
             print(f"lista>>{lista}")
         return lista
   
@@ -74,17 +76,6 @@ class Server:
 def clic(host,port,backlog):
     servidor = Server(host,port,backlog)
     
-
-
-
-# def crear_partida():
-#     #instanciar partida
-#     while True: #esperar a que se llene de jugadores
-#         break
-#     pass
-    
-# def asignar_jugador(): #ver si conviene que este aca, o que sea un metodo de la clase TF
-#     pass
 
 
 

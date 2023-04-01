@@ -1,133 +1,133 @@
 import random , asyncio ,  concurrent.futures , os
 
 class TuttiFrutti:
-    def __init__(self,jugadores={'Luisma':111,'Sofi':222},rondas=2,cant_jugadores=2,n_cat=3):
-        self.cant_jugadores = cant_jugadores
-        self.rondas = rondas
-        self.partida = {}
-        self.tabla = {}
-        self.jugadores = jugadores
-        self.categorias_pret = ["animales" ,"paises"  ,"Nombres"  ,"peliculas",
+    def __init__(self,players={'Luisma':111,'Sofi':222},rounds=2,num_cats=3):
+        self.players = players
+        # self.size = len(self.players)
+        self.rounds = rounds
+        self.match = {}
+        self.table = {}
+        self.default_cats = ["animales" ,"paises"  ,"Nombres"  ,"peliculas",
                                 "series"   ,"ropa"    ,"deportes" ,"peces"    ,
                                 "mamiferos","reptiles","aves"     ,"adjetivos",
                                 "verbos"   ,"colores" ,"comida"   ,"bebida"   ]
         
-        self.crear_tablas(n_cat)
+        self.crear_tablas(num_cats)
         
-        
-    def crear_tablas(self,n_cat):
-        for jugador in list(self.jugadores.keys()):
-            self.partida[jugador] = {}
+    
+    def create_tables(self,num_cats):
+        for player in list(self.players.keys()):
+            self.match[player] = {}
         new_cat = ''
-        for col in range(n_cat):
-            while new_cat == '' or new_cat in self.tabla.keys():
-                new_cat = random.choice(self.categorias_pret)
-            self.tabla[new_cat] = []
-            for jugador in list(self.jugadores.keys()):
-                self.partida[jugador][new_cat] = []
+        for col in range(num_cats):
+            while new_cat == '' or new_cat in self.table.keys():
+                new_cat = random.choice(self.default_cats)
+            self.table[new_cat] = []
+            for player in list(self.players.keys()):
+                self.match[player][new_cat] = []
     
     
     
-    def elegir_letra(self):
-        num_letra = random.randint(0, 25)
-        letra = chr(num_letra + ord('A'))
-        return letra
+    def pick_letter(self):
+        letter_code = random.randint(0, 25)
+        letter = chr(letter_code + ord('A'))
+        return letter
 
-    def agregar_palabra(self,jugador, categoria, palabra):
-        self.partida[jugador][categoria].append(palabra)
+    def add_word(self,player, cat, word):
+        self.match[player][cat].append(word)
         
         
         
-    def seleccionar_categoria(self,jugador,ronda):
+    def pick_cat(self,player,round):
         print("Seleccione una categoría disponible:")
-        categorias_disponibles = []
+        empty_cats = []
         n = 0
-        for categoria in list(self.tabla.keys()):
-            if len(self.partida[jugador][categoria]) == ronda:
+        for cat in list(self.table.keys()):
+            if len(self.match[player][cat]) == round:
                 n += 1
-                print(f"{n}. {categoria}")
-                categorias_disponibles.append(categoria)
+                print(f"{n}. {cat}")
+                empty_cats.append(cat)
                 
-        if len(categorias_disponibles) == 1:
-            return categorias_disponibles[0]
+        if len(empty_cats) == 1:
+            return empty_cats[0]
         
         cat_num = int(input())
-        while cat_num not in range(1, len(categorias_disponibles) + 1):
+        while cat_num not in range(1, len(empty_cats) + 1):
             print("Opción inválida. Seleccione una categoría disponible:")
             cat_num = int(input())
-        return categorias_disponibles[cat_num-1]
+        return empty_cats[cat_num-1]
 
 
 
-    def pedir_palabra(self,jugador,letra_actual,cat_disp):
-        print(f"\nIngrese una palabra para la letra {letra_actual} en la categoria {cat_disp}:\n")
-        palabra = input()
-        while palabra[0].upper() != letra_actual:
-            print("ERROR: La palabra ingresada no empieza con la letra " + letra_actual + ". Intentelo nuevamente.\n")
-            palabra = input()
-        self.agregar_palabra(jugador,cat_disp, palabra)
+    def get_word(self,player,round_letter,avail_cat):
+        print(f"\nIngrese una palabra para la letra {round_letter} en la categoria {avail_cat}:\n")
+        word = input()
+        while word[0].upper() != round_letter:
+            print("ERROR: La palabra ingresada no empieza con la letra " + round_letter + ". Intentelo nuevamente.\n")
+            word = input()
+        self.add_word(player,avail_cat, word)
 
     
     
-    def calcular_puntos(self):
+    def points(self):
         pass
         
         
     
-    def resultado_final(self):
-        fila = ''.center(13+(23*len(self.tabla.keys())),"-")
+    def show_tables(self):
+        row = ''.center(13+(23*len(self.table.keys())),"-")
         print("Tutti Frutti\n\n")
         print("\nResultado:\n")
-        claves = list(self.tabla.keys())
-        for jugador in list(self.partida.keys()):
-            print(fila)
-            print(jugador.center(13+(23*len(self.tabla.keys()))))
-            print(fila)
+        keys = list(self.table.keys())
+        for player in list(self.match.keys()):
+            print(row)
+            print(player.center(13+(23*len(self.table.keys()))))
+            print(row)
             print("|","Ronda".center(10),end="|")
-            for cat in claves:  #Encabezado de la tabla
+            for cat in keys:  #Encabezado de la tabla
                 print("|",cat.center(20),end="|")
             print("\n")
             i = 0
-            for ronda in range(self.rondas):
-                print("|",str(ronda+1).center(10),end="|")
-                for palabra in claves:
+            for round in range(self.rounds):
+                print("|",str(round+1).center(10),end="|")
+                for word in keys:
                     try:
-                        print("|",self.partida[jugador][palabra][i].center(20),end="|")
+                        print("|",self.match[player][word][i].center(20),end="|")
                     except:
                         print("|","-".center(20),end="|")
                 print("\n")
                 i += 1
-            print(fila,"\n\n")
+            print(row,"\n\n")
 
 
 
-    def jugar(self,jugador):
+    def play(self,player):
         print("Tutti Frutti\n\n")
         print("Las Categorías para esta partida son:\n")
-        for categoria in self.tabla:
-            print(f"- {categoria}\n")
+        for cat in self.table:
+            print(f"- {cat}\n")
             
         # a = str(input("empezamos?"))
         
-        for ronda in range(self.rondas):
-            letra_actual = self.elegir_letra()
-            print("La letra de esta ronda es:"+letra_actual+"\n")
+        for round in range(self.rounds):
+            round_letter = self.pick_letter()
+            print("La letra de esta ronda es:"+round_letter+"\n")
             
-            for categoria in self.tabla:
-                print(f"{jugador} te toca!")
+            for cat in self.table:
+                print(f"{player} te toca!")
                     # Solicitar palabras del usuario
-                cat_disp = self.seleccionar_categoria(jugador,ronda)
-                self.pedir_palabra(jugador,letra_actual,cat_disp)
-                    # print(self.tabla)
-                    # print(self.partida)
-            self.resultado_final()
+                avail_cat = self.pick_cat(player,round)
+                self.get_word(player,round_letter,avail_cat)
+                    # print(self.table)
+                    # print(self.match)
+            self.show_tables()
         print("Fin del juego!")
         
         
     async def main(self):
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            for jugador in list(self.jugadores.keys()):
-                future = loop.run_in_executor(executor,self.jugar(jugador))
+            for player in list(self.players.keys()):
+                future = loop.run_in_executor(executor,self.play(player))
                 result = await future
                 print(result)
 
