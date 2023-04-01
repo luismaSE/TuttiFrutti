@@ -1,28 +1,29 @@
-import random
+import random , asyncio ,  concurrent.futures , os
 
 class TuttiFrutti:
-    def __init__(self,jugadores=['Luisma','Sofi'],rondas=2,cant_jugadores=2,n_cat=2):
+    def __init__(self,jugadores={'Luisma':111,'Sofi':222},rondas=2,cant_jugadores=2,n_cat=3):
         self.cant_jugadores = cant_jugadores
         self.rondas = rondas
         self.partida = {}
         self.tabla = {}
-        self.categorias_pret = ["animales",  "paises",   "Nombres",    "peliculas",
-                                "series",    "ropa",     "deportes",   "peces",
-                                "mamiferos", "reptiles", "aves",       "adjetivos",
-                                "verbos",    "colores",  "comida",     "bebida"]
+        self.jugadores = jugadores
+        self.categorias_pret = ["animales" ,"paises"  ,"Nombres"  ,"peliculas",
+                                "series"   ,"ropa"    ,"deportes" ,"peces"    ,
+                                "mamiferos","reptiles","aves"     ,"adjetivos",
+                                "verbos"   ,"colores" ,"comida"   ,"bebida"   ]
         
-        self.crear_tablas(jugadores,n_cat)
+        self.crear_tablas(n_cat)
         
         
-    def crear_tablas(self,jugadores,n_cat):
-        for jugador in jugadores:
+    def crear_tablas(self,n_cat):
+        for jugador in list(self.jugadores.keys()):
             self.partida[jugador] = {}
         new_cat = ''
         for col in range(n_cat):
             while new_cat == '' or new_cat in self.tabla.keys():
                 new_cat = random.choice(self.categorias_pret)
             self.tabla[new_cat] = []
-            for jugador in jugadores:
+            for jugador in list(self.jugadores.keys()):
                 self.partida[jugador][new_cat] = []
     
     
@@ -100,7 +101,7 @@ class TuttiFrutti:
 
 
 
-    def jugar(self):
+    def jugar(self,jugador):
         print("Tutti Frutti\n\n")
         print("Las Categorías para esta partida son:\n")
         for categoria in self.tabla:
@@ -113,17 +114,25 @@ class TuttiFrutti:
             print("La letra de esta ronda es:"+letra_actual+"\n")
             
             for categoria in self.tabla:
-                for jugador in list(self.partida.keys()):
-                    print(f"{jugador} te toca!")
+                print(f"{jugador} te toca!")
                     # Solicitar palabras del usuario
-                    cat_disp = self.seleccionar_categoria(jugador,ronda)
-                    self.pedir_palabra(jugador,letra_actual,cat_disp)
-                    print(self.tabla)
-                    print(self.partida)
-                    self.resultado_final()
+                cat_disp = self.seleccionar_categoria(jugador,ronda)
+                self.pedir_palabra(jugador,letra_actual,cat_disp)
+                    # print(self.tabla)
+                    # print(self.partida)
+            self.resultado_final()
         print("Fin del juego!")
         
+        
+    async def main(self):
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            for jugador in list(self.jugadores.keys()):
+                future = loop.run_in_executor(executor,self.jugar(jugador))
+                result = await future
+                print(result)
 
 if __name__ == '__main__':
+    print(f"PID PRINCIPAL: {os.getpid()}")
     tf = TuttiFrutti()
-    tf.jugar()
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(tf.main())

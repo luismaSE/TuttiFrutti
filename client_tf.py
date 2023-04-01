@@ -19,7 +19,7 @@ def client(host,nickname,ipv4,port,match,rounds,categories,size):
     
     s.connect((host,int(port)))
     if  not match:
-        petition = pickle.dumps([nickname,rounds,categories,size])
+        petition = pickle.dumps([nickname,rounds,size,categories])
     else:
         petition = pickle.dumps((nickname,match))
     s.sendall(petition)
