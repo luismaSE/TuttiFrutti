@@ -1,4 +1,4 @@
-import socket , click , multiprocessing , pickle , os , sys , mmap , threading
+import socket , click , multiprocessing as mp , pickle , os , sys , mmap , threading
 from tutti_frutti import TuttiFrutti
 
 class Server:
@@ -9,7 +9,7 @@ class Server:
         self.backlog = backlog
         self.array = []          # Funciona como una forma para que los hilos se sincronicen sin IPC
         self.conections = {}
-        self.event = multiprocessing.Event()
+        self.event = mp.Event()
         self.set_socket()
         self.serve()
         
@@ -46,11 +46,10 @@ class Server:
             for nick in jugadores:                               
                 party[nick] = self.conections[nick]                                                         # Usamos el nick del cliente para buscar su socket en el registro de conecciones 
             print(f"party>>{party}")                                                                           # Para luego pasarselo al Proceso que ejecutará la partida
-            tf = TuttiFrutti(party,pet[1],pet[3])                                                           #Recibe :
-            client.close()                                                                                    # 1 los jugadores con sus conexiones
-            #                                                                                                  # 2 cantidad de rondas
+            tf = TuttiFrutti(party,pet[1],pet[3])                                                        #Recibe :
+            tf.main()                                                                                                  # 2 cantidad de rondas
             #                                                                                                  # 3 cantidad de categorias
-        
+                
         
         
         
@@ -76,7 +75,8 @@ class Server:
 def clic(host,port,backlog):
     servidor = Server(host,port,backlog)
     
-
+def wait_for_proc(proc):
+    proc.join()
 
 
 if __name__ == '__main__':

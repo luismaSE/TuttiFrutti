@@ -26,12 +26,14 @@ def client(host,nickname,ipv4,port,match,rounds,categories,size):
     
 
     while True:
+        
         msg_in = pickle.loads(b'' + s.recv(4096))
         print(msg_in)
-        msg_out = input('> ')
-        s.sendall(pickle.dumps(msg_out))
-        if msg_out == 'exit':
-            break
+        if msg_in[0] == "#":
+            msg_out = input('> ')
+            s.sendall(pickle.dumps(msg_out))
+            if msg_out == 'exit':
+                break
     s.close()
     sys.exit()
     
