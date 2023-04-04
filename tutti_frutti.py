@@ -73,29 +73,34 @@ class TuttiFrutti:
         
     
     def show_tables(self,client):
-        row = ''.center(13+(23*len(self.table.keys())),"-")
+        separator = ''.center(13+(23*len(self.table.keys())),"-")
         client.sendall(pickle.dumps("Tutti Frutti\n\n\nResultado:\n"))
         keys = list(self.table.keys())
+        
+        
         for player in list(self.match.keys()):
-            client.sendall(pickle.dumps((row+"\n"+player.center(13+(23*len(self.table.keys())))+"\n"+row)))
-            client.sendall(pickle.dumps("|","Ronda".center(10),end="|"))
-            for cat in keys:  #Encabezado de la tabla
-                client.sendall(pickle.dumps("|",cat.center(20),end="|"))
-            client.sendall(pickle.dumps("\n"))
+            client.sendall(pickle.dumps((separator+"\n"+player.center(13+(23*len(self.table.keys())))+"\n"+separator)))
+            header = ("|"+"Ronda".center(10)+"|")
+            
+            for key in keys:
+                header += ("|"+ key.center(20)+"|")
+            client.sendall(pickle.dumps(header+"\n"))
+                            
+            
             i = 0
             for round in range(self.rounds):
-                client.sendall(pickle.dumps("|",str(round+1).center(10),end="|"))
-                for word in keys:
+                row = ''
+                row += ("|"+str(round+1).center(10)+"|")
+                for word in keys:            
                     try:
-                        client.sendall(pickle.dumps("|",self.match[player][word][i].center(20),end="|"))
+                        row += ("|"+self.match[player][word][i].center(20)+"|")
                     except:
-                        client.sendall(pickle.dumps("|","-".center(20),end="|"))
-                client.sendall(pickle.dumps("\n"))
+                        row += ("|"+"-".center(20)+"|")
                 i += 1
-            client.sendall(pickle.dumps(row,"\n\n"))
+                client.sendall(pickle.dumps(row+"\n"))
+            client.sendall(pickle.dumps(separator+"\n\n"))
 
 
-                                        # Habria que ver si se puede haer q se lance una nueva terminal para un nuevo proceso hijo
     def play(self,player,client):                                                                                 # Aca corre el proceso/hilo de cada jugador 
         print(f"PID del proceso del jugador({player}): {os.getpid()}")
         client.sendall(pickle.dumps("Tutti Frutti\n\nLas Categorías para esta partida son:\n\n"))                                                                           # Cada usuario debe ver solo su tabla a lo largo de toda la ronda
@@ -117,7 +122,7 @@ class TuttiFrutti:
                 self.get_word(client,player,round_letter,avail_cat)
                     # print(self.table)
                     # print(self.match)
-            self.show_tables(client)                                                                                #Solamente al final de cada ronda podran ver las tablas de los demas jugadores
+                self.show_tables(client)                                                                                #Solamente al final de cada ronda podran ver las tablas de los demas jugadores
         client.sendall(pickle.dumps("Fin del juego!"))
         
         
