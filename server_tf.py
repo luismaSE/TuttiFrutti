@@ -35,7 +35,7 @@ class Server:
         data = b'' + client.recv(4096)                                                                      # Espera a recibir los parametros de peticion del cliente
         pet = pickle.loads(data)
         self.conections[pet[0]] = client                                                                    # Dejamos un registro de todas las conexiones que recibe el server 
-        print(f"conns>>>{self.conections}")
+        # print(f"conns>>>{self.conections}")
 
         if len(pet) == 2:                                                                                   # Se quiere unir a una partida
             self.array.append((str(pet[0])+"#"+str(pet[1])))                                                   # Agrega una entrada al array
@@ -45,9 +45,10 @@ class Server:
             party = {}                                                                                             # Diccionario para pasarle al proceso de la partida cada usuario con su propia coneccion
             for nick in jugadores:                               
                 party[nick] = self.conections[nick]                                                         # Usamos el nick del cliente para buscar su socket en el registro de conecciones 
-            print(f"party>>{party}")                                                                           # Para luego pasarselo al Proceso que ejecutará la partida
+            # print(f"party>>{party}")                                                                           # Para luego pasarselo al Proceso que ejecutará la partida
             tf = TuttiFrutti(party,pet[1],pet[3])                                                        #Recibe :
-            tf.main()                                                                                                  # 2 cantidad de rondas
+            # tf.play()
+            # tf.main()                                                                                                  # 2 cantidad de rondas
             #                                                                                                  # 3 cantidad de categorias
                 
         
@@ -63,7 +64,7 @@ class Server:
                 for player in waiting:                              
                     nick , line_code = player.split('#')                                
                     lista.append(nick)                                                                      # Ya sabemos el codigo, asi que solo nos interesa el nombre del jugador
-            print(f"lista>>{lista}")
+            # print(f"lista>>{lista}")
         return lista
   
 
