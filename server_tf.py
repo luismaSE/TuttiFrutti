@@ -7,9 +7,10 @@ class Server:
         self.host = host
         self.port = port
         self.backlog = backlog
-        self.array = []          # Funciona como una forma para que los hilos se sincronicen sin IPC
-        self.conections = {}
         self.event = mp.Event()
+        manager = mp.Manager()
+        self.conections = manager.dict()
+        self.array = manager.list()
         self.set_socket()
         self.serve()
         
@@ -23,15 +24,15 @@ class Server:
         
         
     def serve(self):
+        pid = os.getpid()
         while True:
+            pid += 1
             client, address = self.sock.accept()                                                            # El server solo acepta la conexión
             print(f"Accepted connection from {address[0]}:{address[1]}")            
-            threading.Thread(target=self.handle,args=(client,),daemon=True).start()                         # Se la pasamos a un proceso hijo para que la maneje     
+            mp.Process(target=self.handle,args=(client,pid,),daemon=True).start()
             
 
-    def handle(self,client):
-        code = "777"                                     # TO DO: Metodo para generar un codigo unico para cada partida
-        
+    def handle(self,client,pid):
         data = b'' + client.recv(4096)                                                                      # Espera a recibir los parametros de peticion del cliente
         pet = pickle.loads(data)
         self.conections[pet[0]] = client                                                                    # Dejamos un registro de todas las conexiones que recibe el server 
@@ -41,6 +42,8 @@ class Server:
             self.array.append((str(pet[0])+"#"+str(pet[1])))                                                   # Agrega una entrada al array
             self.event.set()                                                                                   # Avisa a las partidas esperando
         elif len(pet) == 4:                                                                                # QUiere crear una partida nueva
+            code = str(pid)        
+            client.sendall(pickle.dumps(f"El código de tu partida es ({code}). Usalo para invitar a tus amigos! "))
             jugadores = self.esperar_jugadores(code,pet[0],pet[2])                                             # La partida no va a empezar hasta que este llena
             party = {}                                                                                             # Diccionario para pasarle al proceso de la partida cada usuario con su propia coneccion
             for nick in jugadores:                               
@@ -64,7 +67,6 @@ class Server:
                 for player in waiting:                              
                     nick , line_code = player.split('#')                                
                     lista.append(nick)                                                                      # Ya sabemos el codigo, asi que solo nos interesa el nombre del jugador
-            # print(f"lista>>{lista}")
         return lista
   
 

@@ -8,7 +8,7 @@ import socket, sys , click , pickle
 @click.option('-p','--port',default=5000,help="puerto del server donde a conectar")
 @click.option('-m','--match',default= 0 ,help="Codigo de la partida a la que me quiero unir")
 @click.option('-r','--rounds',default=3,help="Cantidad de las rondas de la partida")
-@click.option('-c','--categories',default=3,help="Cantidad de categorias que tendrá la partida")
+@click.option('-c','--categories',default=2,help="Cantidad de categorias que tendrá la partida")
 @click.option('-s','--size',default=2,help="Cantidad de jugadores")
 
 def client(host,nickname,ipv4,port,match,rounds,categories,size):
@@ -26,7 +26,6 @@ def client(host,nickname,ipv4,port,match,rounds,categories,size):
     
 
     while True:
-        
         msg_in = pickle.loads(b'' + s.recv(4096))
         print(msg_in)
         if msg_in[0] == "#":
