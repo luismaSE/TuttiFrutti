@@ -33,6 +33,10 @@ def client(host,nickname,ipv4,port,match,rounds,categories,size):
             s.sendall(pickle.dumps(msg_out))
             if msg_out == 'exit':
                 break
+        elif msg_in[-1] == "*":
+            msg_out == 'ack'
+            s.sendall(pickle.dumps(msg_out))
+            
     s.close()
     sys.exit()
     

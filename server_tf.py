@@ -10,7 +10,7 @@ class Server:
         self.event = mp.Event()
         manager = mp.Manager()
         self.conections = manager.dict()
-        self.array = manager.list()
+        self.wait_list = manager.list()
         self.set_socket()
         self.serve()
         
@@ -20,7 +20,7 @@ class Server:
         self.sock.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, 0)
         self.sock.bind((self.host, self.port))
         self.sock.listen(self.backlog)
-        print(f"Server listening on {self.host}:{self.port}")
+        print(f"Server escuchando en > [{self.host}]:[{self.port}]")
         
         
     def serve(self):
@@ -28,7 +28,7 @@ class Server:
         while True:
             pid += 1
             client, address = self.sock.accept()                                                            # El server solo acepta la conexión
-            print(f"Accepted connection from {address[0]}:{address[1]}")            
+            print(f"Conexión aceptada > {address[0]}:{address[1]}")            
             mp.Process(target=self.handle,args=(client,pid,),daemon=True).start()
             
 
@@ -39,7 +39,7 @@ class Server:
         # print(f"conns>>>{self.conections}")
 
         if len(pet) == 2:                                                                                   # Se quiere unir a una partida
-            self.array.append((str(pet[0])+"#"+str(pet[1])))                                                   # Agrega una entrada al array
+            self.wait_list.append((str(pet[0])+"#"+str(pet[1])))                                                   # Agrega una entrada a wait_list
             self.event.set()                                                                                   # Avisa a las partidas esperando
         elif len(pet) == 4:                                                                                # QUiere crear una partida nueva
             code = str(pid)        
@@ -48,10 +48,10 @@ class Server:
             party = {}                                                                                             # Diccionario para pasarle al proceso de la partida cada usuario con su propia coneccion
             for nick in jugadores:                               
                 party[nick] = self.conections[nick]                                                         # Usamos el nick del cliente para buscar su socket en el registro de conecciones 
-            # print(f"party>>{party}")                                                                           # Para luego pasarselo al Proceso que ejecutará la partida
+            #                                                                                                  # Para luego pasarselo al Proceso que ejecutará la partida
             tf = TuttiFrutti(party,pet[1],pet[3])                                                        #Recibe :
-            # tf.play()
-            # tf.main()                                                                                                  # 2 cantidad de rondas
+            # 
+            #                                                                                                   # 2 cantidad de rondas
             #                                                                                                  # 3 cantidad de categorias
                 
         
@@ -62,7 +62,7 @@ class Server:
         lista.append(owner)                             
         while len(lista) != size:                                                                              # No salen del bucle de espera hasta que se llene la partida
             self.event.wait()                                                                                      # Espera hasta que un proceso actualice la lista de espera, osea que un cliente se quiere unir a una partida
-            waiting = [string for string in self.array if code in string]                                              # Revisa la lista y guarda todas las peticiones con el codigo de mi partida
+            waiting = [string for string in self.wait_list if code in string]                                              # Revisa la lista y guarda todas las peticiones con el codigo de mi partida
             if len(waiting) != 0:                               
                 for player in waiting:                              
                     nick , line_code = player.split('#')                                
@@ -76,7 +76,7 @@ class Server:
 @click.option('--backlog', '-l', default=5, type=int, help='')
 
 def clic(host,port,backlog):
-    servidor = Server(host,port,backlog)
+    Server(host,port,backlog)
     
 def wait_for_proc(proc):
     proc.join()
