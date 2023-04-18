@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import socket, sys , click , pickle
+import socket, sys , click , pickle , time
 
 @click.command()
 @click.option('-h','host',default="localhost",help='')
@@ -19,26 +19,47 @@ def client(host,nickname,ipv4,port,match,rounds,categories,size):
     
     s.connect((host,int(port)))
     if  not match:
-        petition = pickle.dumps([nickname,rounds,size,categories])
+            send_pickle_msg(s,[nickname,rounds,size,categories])
     else:
-        petition = pickle.dumps((nickname,match))
-    s.sendall(petition)
-    
+            send_pickle_msg(s,(nickname,match))    
 
     while True:
-        msg_in = pickle.loads(b'' + s.recv(4096))
+        msg_in = recv_msg(s)
         print(msg_in)
-        if msg_in[0] == "#":
+        # print(f"PRINT>>>>{msg_in} -- ({'Ingres' in msg_in})")
+        
+        if 'Ingres' in msg_in:
             msg_out = input('> ')
-            s.sendall(pickle.dumps(msg_out))
+            send_msg(s,msg_out)
             if msg_out == 'exit':
                 break
         elif msg_in[-1] == "*":
             msg_out == 'ack'
-            s.sendall(pickle.dumps(msg_out))
+            send_msg(s,msg_out)
             
     s.close()
     sys.exit()
+
+def send_pickle_msg(s,msg):
+    s.sendall(pickle.dumps(msg))
+    
+def send_msg(s,msg):
+    s.sendall(msg.encode())
+        
+def recv_pickle_msg(s):
+    return pickle.loads(s.recv(1024))
+
+def recv_msg(s):
+    return s.recv(1024).decode()
+
+    # data = b'' ; packet = b''
+    # while (len(packet) == 1024 or packet == b''):
+    #     packet = s.recv(1024)
+    #     print(f"recibi>>> {packet}")
+    #     print(f"len>>> {len(packet)}")
+    #     data += packet
+    # return pickle.loads(data)
+    
     
 if __name__ == '__main__':
     client()

@@ -1,5 +1,7 @@
-import socket , click , multiprocessing as mp , pickle , os , sys , mmap , threading
+import socket , click , multiprocessing as mp , pickle , os , queue
 from tutti_frutti import TuttiFrutti
+from player import Player
+
 
 class Server:
     
@@ -43,13 +45,25 @@ class Server:
             self.event.set()                                                                                   # Avisa a las partidas esperando
         elif len(pet) == 4:                                                                                # QUiere crear una partida nueva
             code = str(pid)        
-            client.sendall(pickle.dumps(f"El código de tu partida es ({code}). Usalo para invitar a tus amigos! "))
+            client.sendall(f"El código de tu partida es ({code}). Usalo para invitar a tus amigos! ".encode())
             jugadores = self.esperar_jugadores(code,pet[0],pet[2])                                             # La partida no va a empezar hasta que este llena
             party = {}                                                                                             # Diccionario para pasarle al proceso de la partida cada usuario con su propia coneccion
-            for nick in jugadores:                               
-                party[nick] = self.conections[nick]                                                         # Usamos el nick del cliente para buscar su socket en el registro de conecciones 
-            #                                                                                                  # Para luego pasarselo al Proceso que ejecutará la partida
-            tf = TuttiFrutti(party,pet[1],pet[3])                                                        #Recibe :
+            q = queue.Queue()
+            
+            
+            tf = TuttiFrutti(q,pet[1])                                                       #Recibe :
+            for nick in jugadores:
+                player = Player(q,nick,self.conections[nick])
+                tf.add_player(nick,player)                                                                # Usamos el nick del cliente para buscar su socket en el registro de conecciones 
+                party[nick] = player                               
+                                                                                                                   # Para luego pasarselo al Proceso que ejecutará la partida
+            
+            
+            tf.create_tables(pet[3])
+            for player in list(party.values()):
+                player.join_match(tf)
+                player.start_match()
+            tf.play()
             # 
             #                                                                                                   # 2 cantidad de rondas
             #                                                                                                  # 3 cantidad de categorias
