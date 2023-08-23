@@ -7,11 +7,11 @@ class TuttiFrutti:
         self.players = {}
         self.table = {}
         self.match = {}
-        self.default_cats = [   "animales" ,"paises"  ,"Nombres"  ,"peliculas",
-                                "series"   ,"ropa"    ,"deportes" ,"peces"    ,
-                                "mamiferos","reptiles","aves"     ,"adjetivos",
-                                "verbos"   ,"colores" ,"comida"   ,"bebida"   ]
-        
+        self.default_cats = [   "animales" ,"paises"  ,"Nombres"  ,"peliculas/series", "trabajos"
+                                "ropa"    ,"deportes" ,"peces"    ,"adjetivos"       , "objetos"
+                                "mamiferos","reptiles","aves"     ,"adjetivos"       , "marcas"
+                                "verbos"   ,"colores" ,"comida"   ,"bebida"          , "ciudades"
+                            ]
         # self.create_tables(num_cats)
         # self.play()
 
@@ -68,8 +68,16 @@ class TuttiFrutti:
                 player.send_msg("Preparate, la proxima ronda esta por empezar...")
             
             time.sleep(3)
+            
+            print(self.match)        
 
-        # ("Fin del juego!")
+        for nick , player in list(self.players.items()):
+            player.send_msg("Fin del juego!\n\nCalculando puntajes...")
+        
+        return (str(self.match))
+            
+        
+            
             
             
     def pick_letter(self):
@@ -79,13 +87,13 @@ class TuttiFrutti:
     
     
     def show_tables(self,player):
-        separator = ''.center(13+(23*len(self.table.keys())),"-")
+        separator = ''.center(12+(22*len(self.table.keys())),"-")
         player.send_msg("\nTutti Frutti\n\nResultado:\n")
         keys = list(self.table.keys())
         
         
         for nick in list(self.players.keys()):
-            player.send_msg(separator+"\n"+nick.center(13+(23*len(self.table.keys())))+"\n"+separator)
+            player.send_msg(separator+"\n"+nick.center(12+(22*len(self.table.keys())))+"\n"+separator)
             header = ("|"+"Ronda".center(10)+"|")
             
             for key in keys:
