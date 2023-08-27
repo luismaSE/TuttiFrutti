@@ -36,6 +36,8 @@ def client(host,nickname,ipv4,port,match,rounds,categories,size):
         elif msg_in[-1] == "*":
             msg_out == 'ack'
             send_msg(s,msg_out)
+        elif 'GAME OVER' in msg_in:
+            break
             
     s.close()
     sys.exit()

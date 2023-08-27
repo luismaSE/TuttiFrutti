@@ -7,10 +7,11 @@ class TuttiFrutti:
         self.players = {}
         self.table = {}
         self.match = {}
-        self.default_cats = [   "animales" ,"paises"  ,"Nombres"  ,"peliculas/series", "trabajos"
-                                "ropa"    ,"deportes" ,"peces"    ,"adjetivos"       , "objetos"
-                                "mamiferos","reptiles","aves"     ,"adjetivos"       , "marcas"
-                                "verbos"   ,"colores" ,"comida"   ,"bebida"          , "ciudades"
+        self.default_cats = [   "animales"   ,"paises/ciudades"   ,"nombres", 
+                                "ropa"       ,"deportes"          ,"objetos",
+                                "adjetivos"  ,"marcas"            ,"bebida" ,
+                                "verbos"     ,"colores"           ,"comida" ,  
+                                "trabajos"   ,"peliculas/series"  ,"juegos"
                             ]
         # self.create_tables(num_cats)
         # self.play()
@@ -41,7 +42,7 @@ class TuttiFrutti:
 
     def play(self):
         th_list = []
-        categories = list(self.table.keys())
+        self.categories = list(self.table.keys())
         for round in range(self.rounds):
             self.status = True
             round_letter = self.pick_letter()
@@ -115,5 +116,47 @@ class TuttiFrutti:
             player.send_msg(separator+"\n\n")
     
     
-    def points(self):
-        pass
+    def get_score(self,points):
+        score = []
+        cats = len(self.get_categories())
+        # rounds = int(len(points) / (len(players)*len(cats)))
+        for player in range(len(self.players)):
+                for round in range(self.rounds):
+                    r_score = 0
+                    for cat in range(cats):
+                        r_score += 15*points[player*self.rounds*cats+cat*self.rounds+round]
+                    score.append(r_score)
+        return score
+    
+    def game_over(self,points):
+        score = self.get_score(points)
+        for  player in list(self.players.values()):
+            f_scores = []
+            player.send_msg("RESULTADO FINAL:\n")
+            self.show_tables(player)
+            player.send_msg("PUNTAJES:\n")
+            for nick in range(len(self.players)):
+                p_score = 0  
+                for round in range(self.rounds):
+                    r_score = score[nick*self.rounds+round]
+                    player.send_msg("Ronda "+str(round)+" = "+str(r_score)+" puntos!\n")
+                    p_score += r_score
+                f_scores.append(p_score)
+                player.send_msg("Puntaje final de "+str(list(self.players.keys())[nick])+" = "+str(p_score)+"\n\n")
+                
+            max_index = [] 
+            max_score = max(f_scores)
+            for num in f_scores:
+                if num == max_score:
+                    max_index.append(f_scores.index(num))
+            
+            if len(max_index) > 1:
+                player.send_msg("Hubó un empate!")
+            else:
+                player.send_msg("¡El ganador es "+str(list(self.players.keys())[max_index[0]])+"!\n")
+            player.send_msg("\n\nGAME OVER")        
+                        
+            
+            
+            
+            

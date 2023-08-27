@@ -1,4 +1,4 @@
-import socket , click , multiprocessing as mp , pickle , os , queue
+import socket , click , multiprocessing as mp , pickle , os , queue , sys
 from tutti_frutti import TuttiFrutti
 from player import Player
 import gpt_api
@@ -64,9 +64,11 @@ class Server:
             for player in list(party.values()):
                 player.join_match(tf)
                 player.start_match()
-            dict = tf.play()
-            point_dict = gpt_api.api_query(dict)
-            tf.points(point_dict)
+            # dict = tf.play()
+            # points = gpt_api.api_query(dict)
+            points = gpt_api.fake_ai()
+            tf.game_over(points)
+            sys.exit()
             # 
             #                                                                                                   # 2 cantidad de rondas
             #                                                                                                  # 3 cantidad de categorias
