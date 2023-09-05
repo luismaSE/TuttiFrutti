@@ -1,4 +1,4 @@
-import socket , click , multiprocessing as mp , pickle , os , queue , sys
+import socket , click , multiprocessing as mp , pickle , os , queue , sys , time
 from tutti_frutti import TuttiFrutti
 from player import Player
 import gpt_api
@@ -42,8 +42,17 @@ class Server:
         # print(f"conns>>>{self.conections}")
 
         if len(pet) == 2:                                                                                   # Se quiere unir a una partida
-            self.wait_list.append((str(pet[0])+"#"+str(pet[1])))                                                   # Agrega una entrada a wait_list
+            entry = (str(pet[0])+"#"+str(pet[1]))
+            self.wait_list.append(entry)                                                   # Agrega una entrada a wait_list
             self.event.set()                                                                                   # Avisa a las partidas esperando
+            
+            time.sleep(15)
+            if entry in self.wait_list:
+                self.wait_list.remove(entry)
+                client.sendall(f"Tiempo de espera terminado... Revisa el codigo ingresado e intenta nuevamente\nGAME OVER".encode())
+                sys.exit()
+            
+            
         elif len(pet) == 4:                                                                                # QUiere crear una partida nueva
             code = str(pid)        
             client.sendall(f"El código de tu partida es ({code}). Usalo para invitar a tus amigos! ".encode())
@@ -64,11 +73,11 @@ class Server:
             for player in list(party.values()):
                 player.join_match(tf)
                 player.start_match()
-            # dict = tf.play()
-            # points = gpt_api.api_query(dict)
+            dict = tf.play()
+            # points = gpt_api.api_query(dict)        
             points = gpt_api.fake_ai()
             tf.game_over(points)
-            sys.exit()
+        sys.exit()
             # 
             #                                                                                                   # 2 cantidad de rondas
             #                                                                                                  # 3 cantidad de categorias
@@ -81,7 +90,13 @@ class Server:
         lista.append(owner)                             
         while len(lista) != size:                                                                              # No salen del bucle de espera hasta que se llene la partida
             self.event.wait()                                                                                      # Espera hasta que un proceso actualice la lista de espera, osea que un cliente se quiere unir a una partida
-            waiting = [string for string in self.wait_list if code in string]                                              # Revisa la lista y guarda todas las peticiones con el codigo de mi partida
+            waiting = []
+            for string in self.wait_list:
+                if code in string:
+                    waiting.append(string)
+                    self.wait_list.remove(string)
+
+            # waiting = [string for string in self.wait_list if code in string]                                              # Revisa la lista y guarda todas las peticiones con el codigo de mi partida
             if len(waiting) != 0:                               
                 for player in waiting:                              
                     nick , line_code = player.split('#')                                

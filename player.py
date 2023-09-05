@@ -80,10 +80,17 @@ class Player:
         if len(avail_cats) == 1:
             return avail_cats[0]
         self.send_msg("# Ingrese la opción que quiere completar:")
-        cat_num = int(self.recv_msg())
-        while cat_num not in range(1, len(avail_cats) + 1):
-            self.send_msg("# Opción inválida. Ingrese una categoría disponible: ")
+        try:
             cat_num = int(self.recv_msg())
+        except ValueError:
+            cat_num = 99
+            self.send_msg("# Opción inválida. Solo se permiten caracteres númericos: ")
+        while cat_num not in range(1, len(avail_cats) + 1):
+            self.send_msg("# Ingrese una de las categoría disponible: ")
+            try:
+                cat_num = int(self.recv_msg())
+            except ValueError:
+                self.send_msg("# Opción inválida. Solo se permiten caracteres númericos: ")
         return avail_cats[cat_num-1]
 
 

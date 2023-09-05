@@ -26,7 +26,6 @@ def client(host,nickname,ipv4,port,match,rounds,categories,size):
     while True:
         msg_in = recv_msg(s)
         print(msg_in)
-        # print(f"PRINT>>>>{msg_in} -- ({'Ingres' in msg_in})")
         
         if 'Ingres' in msg_in:
             msg_out = input('> ')
@@ -53,14 +52,6 @@ def recv_pickle_msg(s):
 
 def recv_msg(s):
     return s.recv(1024).decode()
-
-    # data = b'' ; packet = b''
-    # while (len(packet) == 1024 or packet == b''):
-    #     packet = s.recv(1024)
-    #     print(f"recibi>>> {packet}")
-    #     print(f"len>>> {len(packet)}")
-    #     data += packet
-    # return pickle.loads(data)
     
     
 if __name__ == '__main__':

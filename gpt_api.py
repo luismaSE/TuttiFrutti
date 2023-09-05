@@ -4,7 +4,7 @@ import ast
 from bardapi import Bard, SESSION_HEADERS
 
 def fake_ai():
-  list = [2,2,2,2,2,2,2,2,2,2,2,2]
+  list = [2,1,2,0,2,1,2,2,0,0,2,1]
   return list
 
 def api_query(dict):
