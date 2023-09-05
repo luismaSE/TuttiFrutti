@@ -1,7 +1,7 @@
 import socket , click , multiprocessing as mp , pickle , os , queue , sys , time
 from tutti_frutti import TuttiFrutti
 from player import Player
-import gpt_api
+import ai_api
 
 
 class Server:
@@ -74,8 +74,8 @@ class Server:
                 player.join_match(tf)
                 player.start_match()
             dict = tf.play()
-            # points = gpt_api.api_query(dict)        
-            points = gpt_api.fake_ai()
+            # points = ai_api.bard_query(dict)        
+            points = ai_api.fake_ai()
             tf.game_over(points)
         sys.exit()
             # 
