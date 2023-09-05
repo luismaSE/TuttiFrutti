@@ -39,7 +39,7 @@ EJEMPLO:
     FIN DE LA RESPUESTA
     """
     
-    openai.api_key = "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"
+    openai.api_key = KEY
     response = openai.Completion.create(model="gpt-3.5-turbo",
                                         prompt=text,
                                         max_tokens=1
