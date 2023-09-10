@@ -5,6 +5,12 @@ import ai_api
 import json
 
 
+# lista de dependencias a instalar para ejecutar el server
+# click
+# request
+# bardapi
+# 
+
 class Server:
     
     def __init__(self,host,port,backlog):
@@ -75,7 +81,6 @@ class Server:
                 player.join_match(tf)
                 player.start_match()
             dict = tf.play()
-            # dict = json.loads("""{"Luisma": {"colores": ["turquesa", "bosqueguarda", "walabi"], "trabajos": ["triturador", "bicho", "wiskas"]}, "Juan": {"colores": ["turtura", "blanco", "wuxia"], "trabajos": ["taxista", "bicho", "woludo"]}}""")
             prompt = ai_api.create_prompt(dict)
             points = ai_api.bard_query(prompt)      
             # points = ai_api.fake_ai()

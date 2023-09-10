@@ -1,7 +1,5 @@
 import requests
-import openai
 import json
-import ast
 from bardapi import Bard, SESSION_HEADERS
 
 # def fake_ai():

@@ -21,7 +21,7 @@ class TuttiFrutti:
         self.players[nick] = player
     
     def add_word(self,round,nick,cat,word):
-        self.match[nick][cat].insert(round,word)
+        self.match[nick][cat][round] = word
         
     def get_categories(self):
         return list(self.table.keys())
@@ -36,11 +36,13 @@ class TuttiFrutti:
         for col in range(num_cats):
             while new_cat == '' or new_cat in self.table.keys():
                 new_cat = random.choice(self.default_cats)
-            self.table[new_cat] = []
+            self.table[new_cat] = ['-' for round in range(self.rounds)]
             for player in list(self.players.keys()):
-                self.match[player][new_cat] = []
-                for round in range(self.rounds):
-                    self.table[new_cat].append("-")
+                self.match[player][new_cat] = ['-' for round in range(self.rounds)]
+        print("match",self.match)
+                # for round in range(self.rounds):
+                #     self.match[player][new_cat].append("-")
+                
     
 
     def play(self):
@@ -78,7 +80,7 @@ class TuttiFrutti:
         for nick , player in list(self.players.items()):
             player.send_msg("Fin del juego!\n\nCalculando puntajes...")
         
-        return (str(self.match))
+        return (self.match)
             
         
             
