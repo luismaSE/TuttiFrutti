@@ -7,11 +7,12 @@ class TuttiFrutti:
         self.players = {}
         self.table = {}
         self.match = {}
-        self.default_cats = [   "animales"   ,"paises/ciudades"   ,"nombres", 
-                                "ropa"       ,"deportes"          ,"objetos",
-                                "adjetivos"  ,"marcas"            ,"bebida" ,
-                                "verbos"     ,"colores"           ,"comida" ,  
-                                "trabajos"   ,"peliculas/series"  ,"juegos"
+        self.default_cats = [   "animales"   ,"paises/ciudades"   ,
+                                "nombres"    ,"deportes/hobbies"  ,
+                                "adjetivos"  ,"comidas/bebidas"   ,
+                                "marcas"     ,"peliculas/series"  ,
+                                "verbos"     ,"colores"           ,  
+                                "trabajos"   ,"juegos"
                             ]
         # self.create_tables(num_cats)
         # self.play()
@@ -19,8 +20,8 @@ class TuttiFrutti:
     def add_player(self,nick,player):
         self.players[nick] = player
     
-    def add_word(self,nick,cat,word):
-        self.match[nick][cat].append(word)
+    def add_word(self,round,nick,cat,word):
+        self.match[nick][cat].insert(round,word)
         
     def get_categories(self):
         return list(self.table.keys())
@@ -38,6 +39,8 @@ class TuttiFrutti:
             self.table[new_cat] = []
             for player in list(self.players.keys()):
                 self.match[player][new_cat] = []
+                for round in range(self.rounds):
+                    self.table[new_cat].append("-")
     
 
     def play(self):
@@ -47,7 +50,7 @@ class TuttiFrutti:
             self.status = True
             round_letter = self.pick_letter()
             for player in list(self.players.values()):
-                thread = threading.Thread(target=player.play_round,args=(round_letter,th_list),daemon=True)
+                thread = threading.Thread(target=player.play_round,args=(round,round_letter,th_list),daemon=True)
                 th_list.append(thread)
                 thread.start()
                 
@@ -124,7 +127,7 @@ class TuttiFrutti:
                 for round in range(self.rounds):
                     r_score = 0
                     for cat in range(cats):
-                        r_score += 15*points[player*self.rounds*cats+cat*self.rounds+round]
+                        r_score += 10*points[player*self.rounds*cats+cat*self.rounds+round]
                     score.append(r_score)
         return score
     

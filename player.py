@@ -44,7 +44,7 @@ class Player:
         return self.client.recv(1024).decode()
     
     
-    def play_round(self,round_letter,th_list):
+    def play_round(self,round,round_letter,th_list):
         self.send_msg("\nLa letra de esta ronda es:"+round_letter+"\n")
         avail_cats = self.tf.get_categories()
         for cat in self.tf.get_categories():
@@ -57,7 +57,7 @@ class Player:
             if self.tf.get_status():                
                 word = self.get_word(round_letter,mi_cat)
                 # print(f"agrego la palabra {word}, a la categoria {mi_cat}, en la tabla de {self.nick}")
-                self.add_word(mi_cat,word)
+                self.add_word(round,mi_cat,word)
             
             else:
                 # print(f"status es 0. {self.nick}, alguien ya terminó")
@@ -105,5 +105,5 @@ class Player:
 
 
 
-    def add_word(self,cat,word):
-        self.tf.add_word(self.nick,cat,word)
+    def add_word(self,round,cat,word):
+        self.tf.add_word(round,self.nick,cat,word)

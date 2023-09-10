@@ -2,6 +2,7 @@ import socket , click , multiprocessing as mp , pickle , os , queue , sys , time
 from tutti_frutti import TuttiFrutti
 from player import Player
 import ai_api
+import json
 
 
 class Server:
@@ -36,7 +37,7 @@ class Server:
             
 
     def handle(self,client,pid):
-        data = b'' + client.recv(4096)                                                                      # Espera a recibir los parametros de peticion del cliente
+        data = b"" + client.recv(4096)                                                                      # Espera a recibir los parametros de peticion del cliente
         pet = pickle.loads(data)
         self.conections[pet[0]] = client                                                                    # Dejamos un registro de todas las conexiones que recibe el server 
         # print(f"conns>>>{self.conections}")
@@ -74,8 +75,10 @@ class Server:
                 player.join_match(tf)
                 player.start_match()
             dict = tf.play()
-            # points = ai_api.bard_query(dict)        
-            points = ai_api.fake_ai()
+            # dict = json.loads("""{"Luisma": {"colores": ["turquesa", "bosqueguarda", "walabi"], "trabajos": ["triturador", "bicho", "wiskas"]}, "Juan": {"colores": ["turtura", "blanco", "wuxia"], "trabajos": ["taxista", "bicho", "woludo"]}}""")
+            prompt = ai_api.create_prompt(dict)
+            points = ai_api.bard_query(prompt)      
+            # points = ai_api.fake_ai()
             tf.game_over(points)
         sys.exit()
             # 
@@ -99,15 +102,15 @@ class Server:
             # waiting = [string for string in self.wait_list if code in string]                                              # Revisa la lista y guarda todas las peticiones con el codigo de mi partida
             if len(waiting) != 0:                               
                 for player in waiting:                              
-                    nick , line_code = player.split('#')                                
+                    nick , line_code = player.split("#")                                
                     lista.append(nick)                                                                      # Ya sabemos el codigo, asi que solo nos interesa el nombre del jugador
         return lista
   
 
 @click.command()
-@click.option('--host', '-h', default='', help='')
-@click.option('--port', '-p', default=8000, type=int, help='')
-@click.option('--backlog', '-l', default=5, type=int, help='')
+@click.option("--host", "-h", default="", help="")
+@click.option("--port", "-p", default=8000, type=int, help="")
+@click.option("--backlog", "-l", default=5, type=int, help="")
 
 def clic(host,port,backlog):
     Server(host,port,backlog)
@@ -116,5 +119,5 @@ def wait_for_proc(proc):
     proc.join()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     clic()
