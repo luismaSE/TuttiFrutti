@@ -17,19 +17,7 @@ class Player:
         for cat in self.tf.get_categories():
             cats += f"- {cat}\n"
         self.send_msg(cats)
-    
-    # def send_msg(self,msg):
-    #     self.client.sendall(pickle.dumps(msg))
-    
 
-    # def recv_msg(self):
-    #     data = b'' ; packet = b''
-    #     while (len(packet) == 1024 or packet == b''):
-    #         packet = self.client.recv(1024)
-    #         if packet == b'':
-    #             return None
-    #         data += packet
-    #     return pickle.loads(data)
     
     def send_pickle_msg(self,msg):
         self.client.sendall(pickle.dumps(msg))
@@ -49,27 +37,23 @@ class Player:
         avail_cats = self.tf.get_categories()
         for cat in self.tf.get_categories():
             
-            if self.tf.get_status():
-                # print('status es 1 - juego')
+            if self.tf.get_status(): # status es 1 - juego
                 mi_cat = self.pick_cat(avail_cats)
                 avail_cats.pop(avail_cats.index(mi_cat))
-                
+            # Antes de dejar que ingresen la palabra revisa si alguien ya terminó
             if self.tf.get_status():                
                 word = self.get_word(round_letter,mi_cat)
-                # print(f"agrego la palabra {word}, a la categoria {mi_cat}, en la tabla de {self.nick}")
                 self.add_word(round,mi_cat,word)
             
-            else:
-                # print(f"status es 0. {self.nick}, alguien ya terminó")
+            else:   # status es 0. alguien ya terminó")
                 break
-            
+        # vuelve a revisar cuando el jugador termina la ronda
         if self.tf.get_status():
             self.send_msg("Tutti Frutti, Nadie más escribe!")
             self.q.put([self.nick,"*¡Tutti Frutti, Nadie más escribe!*"])
             th_list.remove(threading.current_thread())
         
         
-            
     def pick_cat(self,avail_cats):
         self.send_msg("Categorías disponibles:")
         n = 0 ; cats = ''

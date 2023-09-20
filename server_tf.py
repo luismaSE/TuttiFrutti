@@ -8,8 +8,7 @@ import json
 # lista de dependencias a instalar para ejecutar el server
 # click
 # request
-# bardapi
-# 
+# bardapi 
 
 class Server:
     

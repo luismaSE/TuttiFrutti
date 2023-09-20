@@ -71,20 +71,14 @@ class TuttiFrutti:
                 th.join()
             for nick , player in list(self.players.items()):
                 self.show_tables(player)
-                player.send_msg("Preparate, la proxima ronda esta por empezar...")
-            
+                if round != self.rounds-1:
+                    player.send_msg("Preparate, la proxima ronda esta por empezar...")
+                else:
+                    player.send_msg("Fin del juego!\n\nCalculando puntajes...")
             time.sleep(3)
-            
             print(self.match)        
-
-        for nick , player in list(self.players.items()):
-            player.send_msg("Fin del juego!\n\nCalculando puntajes...")
-        
         return (self.match)
-            
-        
-            
-            
+                    
             
     def pick_letter(self):
         letter_code = random.randint(0, 25)

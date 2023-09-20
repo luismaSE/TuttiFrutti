@@ -121,6 +121,7 @@ La palabra NEGAR pertenece a la categoria VERBOS?
 La palabra GAITA pertenece a la categoria OBJETOS?
 La palabra PIÑATHA pertenece a la categoria OBJETOS?
 La palabra NADAR pertenece a la categoria OBJETOS?
+
 La palabra GRITAR pertenece a la categoria VERBOS?
 La palabra PINTAR pertenece a la categoria VERBOS?
 La palabra NADAR pertenece a la categoria VERBOS?
