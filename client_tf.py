@@ -35,7 +35,7 @@ def client(host,nickname,port):
         msg_in = recv_msg(s)
         print(msg_in)
         
-        if 'Ingres' in msg_in:
+        if 'ngres' in msg_in:
             msg_out = input('> ')
             send_msg(s,msg_out)
             if msg_out == 'exit':

@@ -19,14 +19,14 @@ class Player:
         self.send_msg(cats)
 
     
-    def send_pickle_msg(self,msg):
-        self.client.sendall(pickle.dumps(msg))
+    # def send_pickle_msg(self,msg):
+    #     self.client.sendall(pickle.dumps(msg))
 
     def send_msg(self,msg):
         self.client.sendall(msg.encode())
 
-    def recv_pickle_msg(self):
-        return pickle.loads(self.client.recv(1024))
+    # def recv_pickle_msg(self):
+    #     return pickle.loads(self.client.recv(1024))
 
     def recv_msg(self):
         return self.client.recv(1024).decode()

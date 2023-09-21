@@ -50,12 +50,10 @@ class Server:
         nick = get_msg(client)
         self.conections[nick] = client                                                                    # Dejamos un registro de todas las conexiones que recibe el server 
         client.sendall(f"Bienvenido {nick}, vamos a jugar TuttiFrutti!\nIngresa (1) si quieres crear una partida nueva\nIngresa (2) si quieres ver la lista de partidas a las que puedes unirte\n".encode())
-        op = int(get_msg(client))
-        
-        # print(f"conns>>>{self.conections}")
-        while op != 1 or op != 2:
+        op = int(client.recv(1024).decode())
+        while op != 1 and op != 2:
             client.sendall("Opción invalida, intentalo nuevamente".encode())
-            op = int(get_msg(client))
+            op = int(client.recv(1024).decode())
             
             
             
@@ -88,9 +86,9 @@ class Server:
         
             
         elif op == 2:                                                                                   # Se quiere unir a una partida
-            client.sendall(self.show_list())
-            
-            entry = (nick+"#"+str(pet[1]))
+            self.show_list(client)
+            code = client.recv(1024).decode()
+            entry = (nick+"#"+str(code)) #revisar
             self.wait_list.append(entry)                                                   # Agrega una entrada a wait_list
             self.event.set()                                                                                   # Avisa a las partidas esperando
             
@@ -102,15 +100,15 @@ class Server:
     
     def show_list(self,client):
         msg = 'Entendido! Estas son las partidas que estan disponibles, ingresa el código de la partida a la que deseas unirte\n'
-        i = 0
+        i = 1
         for key,value in list(self.matches.items()):
-            msg += f'Partida {i} - Dueño: {value} - Código: {key}'
+            msg += f'Partida {i} - Dueño: {value} - Código: {key}\n'
             i += 1
         client.sendall(msg.encode())
 
     
     def build_match(self,client):
-        size,cats,rounds = None
+        size = None; cats = None ; rounds = None
         client.sendall("Perfecto, Vamos a crear tu partida!".encode())
         while size == None:
             client.sendall("Porfavor ingresa cuantos jugadores quieres que participen (se permiten desde 2 hasta 5 jugadores)".encode())
@@ -153,7 +151,7 @@ class Server:
     
 
 def get_msg(client):
-    return pickle.loads(b""+client.recv(4096))
+    return client.recv(1024).decode(errors='ignore')
   
 
 @click.command()
