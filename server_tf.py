@@ -79,10 +79,8 @@ class Server:
     
         
     
-# class Handler:
 
     def handle(self,client,pid):
-        # self.client = client
         nick = get_msg(client)
         self.conections[nick] = client                                                                    # Dejamos un registro de todas las conexiones que recibe el server 
         client.sendall(f"Bienvenido {nick}, vamos a jugar TuttiFrutti!\nIngresa (1) si quieres crear una partida nueva\nIngresa (2) si quieres ver la lista de partidas a las que puedes unirte\n".encode())
@@ -92,12 +90,10 @@ class Server:
             op = int(client.recv(1024).decode())
             
             
-            
         if op == 1:                                                                                # QUiere crear una partida nueva
             code = str(pid)        
             size,cats,rounds = self.build_match(client)
             self.matches[code] = nick
-            # client.sendall(f"El código de tu partida es ({code}). Usalo para invitar a tus amigos! ".encode())
             
             jugadores = self.esperar_jugadores(code,nick,size)                                             # La partida no va a empezar hasta que este llena
             party = {}                                                                                             # Diccionario para pasarle al proceso de la partida cada usuario con su propia coneccion
@@ -116,7 +112,6 @@ class Server:
             dict = tf.play()
             prompt = ai_api.create_prompt(dict)
             points = ai_api.bard_query(prompt)      
-            # points = ai_api.fake_ai()
             tf.game_over(points)
             sys.exit()
         
@@ -124,7 +119,7 @@ class Server:
         elif op == 2:                                                                                   # Se quiere unir a una partida
             self.show_list(client)
             code = client.recv(1024).decode()
-            entry = (nick+"#"+str(code)) #revisar
+            entry = (nick+"#"+str(code))
             self.wait_list.append(entry)                                                   # Agrega una entrada a wait_list
             self.event.set()                                                                                   # Avisa a las partidas esperando
             
@@ -176,7 +171,6 @@ class Server:
                     waiting.append(string)
                     self.wait_list.remove(string)
 
-            # waiting = [string for string in self.wait_list if code in string]                                              # Revisa la lista y guarda todas las peticiones con el codigo de mi partida
             if len(waiting) != 0:                               
                 for player in waiting:                              
                     nick , line_code = player.split("#")                                

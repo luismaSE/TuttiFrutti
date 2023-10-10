@@ -1,14 +1,10 @@
+from bardapi import Bard, SESSION_HEADERS
 import requests
 import json
-from bardapi import Bard, SESSION_HEADERS
-
-# def fake_ai():
-#   list = [2,1,2,0,2,1,2,2,0,0,2,1]
-#   return list
-
 
 def bard_query(prompt):
-    token = "awhrFDMkcSrGtIx1zFUjVcMeiT70uTdEEqnY-yWv1c4LaL7DPtLsEMaoLeNfXJTQ42TNDQ."
+    with open('token.txt') as file:
+        token = file.read()[:-1]
     session = requests.Session()
     session.headers = SESSION_HEADERS
     session.cookies.set("__Secure-1PSID", token)
@@ -101,8 +97,6 @@ if __name__ == "__main__":
     dic = json.loads("""{"Luisma": {"verbos": ["gigante", "pintar", "negar"], "objetos": ["gaita", "piñatha", "nadar"]}, "Juan": {"verbos": ["gritar", "pintar", "nadar"], "objetos": ["gancho", "piñata", "nido"]}}""")
     prompt = create_prompt(dic)
     bard_query(prompt)
-    # gpt_query(dic)
-
 
 
 

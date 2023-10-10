@@ -14,8 +14,6 @@ class TuttiFrutti:
                                 "verbos"     ,"colores"           ,  
                                 "trabajos"   ,"juegos"
                             ]
-        # self.create_tables(num_cats)
-        # self.play()
 
     def add_player(self,nick,player):
         self.players[nick] = player
@@ -40,8 +38,6 @@ class TuttiFrutti:
             for player in list(self.players.keys()):
                 self.match[player][new_cat] = ['-' for round in range(self.rounds)]
         print("match",self.match)
-                # for round in range(self.rounds):
-                #     self.match[player][new_cat].append("-")
                 
     
 
@@ -56,7 +52,6 @@ class TuttiFrutti:
                 th_list.append(thread)
                 thread.start()
                 
-            # print("Espero a que alguien termine")
             end = self.q.get()
             end_warning = end[0]+' gritó '+end[1][1:-2]
             self.status = False
@@ -65,7 +60,6 @@ class TuttiFrutti:
             
             for nick , player in list(self.players.items()):
                 if nick != end[0]:
-                    # print("le aviso a ",nick)
                     player.send_msg(end_warning)
             for th in th_list:
                 th.join()
@@ -118,7 +112,6 @@ class TuttiFrutti:
     def get_score(self,points):
         score = []
         cats = len(self.get_categories())
-        # rounds = int(len(points) / (len(players)*len(cats)))
         for player in range(len(self.players)):
                 for round in range(self.rounds):
                     r_score = 0
