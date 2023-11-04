@@ -19,10 +19,13 @@ def client(host,nickname,port):
         print(msg_in)
         
         if 'ngres' in msg_in:
-            msg_out = input('> ')
-            send_msg(s,msg_out)
-            if msg_out == 'exit':
-                break
+            msg_out = ""
+            while msg_out == "":
+                msg_out = input('> ')
+                if msg_out != "":
+                    send_msg(s,msg_out)
+                    if msg_out == 'exit':
+                        break
         elif msg_in[-1] == "*":
             msg_out == 'ack'
             send_msg(s,msg_out)

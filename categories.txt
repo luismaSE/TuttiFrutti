@@ -1,0 +1,12 @@
+animales
+paises/ciudades
+nombres
+deportes/hobbies
+adjetivos
+comidas/bebidas
+marcas
+peliculas/series
+verbos
+colores
+trabajos
+juegos

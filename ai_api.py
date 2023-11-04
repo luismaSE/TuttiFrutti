@@ -16,17 +16,16 @@ def bard_query(prompt):
     list = resp.split("@")
     points = json.loads(list[1])
     print(f"Lista\n{points}")
+    points = check_word(points)
     return points
     
     
 def check_word(points):
-    diccionario = json.loads(dic)
+    diccionario = dic
     jugadores = list(diccionario.keys())
     categorias = list(diccionario[jugadores[0]].keys())
     rondas = len(diccionario[jugadores[0]][categorias[0]])
-    print("jugadores>",jugadores)
-    print("cats>",categorias)
-    print("rondas>",rondas)
+    
     
     puntajes=[]
     i = 0
@@ -54,9 +53,6 @@ def create_prompt(diccionario):
     jugadores = list(diccionario.keys())
     categorias = list(diccionario[jugadores[0]].keys())
     rondas = len(diccionario[jugadores[0]][categorias[0]])
-    print("jugadores>",jugadores)
-    print("cats>",categorias)
-    print("rondas>",rondas)
     
     texto = """
 Coloca 1 o 0 según la pregunta sea verdadera o falsa:

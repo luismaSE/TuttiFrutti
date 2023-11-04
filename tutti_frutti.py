@@ -7,14 +7,7 @@ class TuttiFrutti:
         self.players = {}
         self.table = {}
         self.match = {}
-        self.default_cats = [   "animales"   ,"paises/ciudades"   ,
-                                "nombres"    ,"deportes/hobbies"  ,
-                                "adjetivos"  ,"comidas/bebidas"   ,
-                                "marcas"     ,"peliculas/series"  ,
-                                "verbos"     ,"colores"           ,  
-                                "trabajos"   ,"juegos"
-                            ]
-
+        self.default_cats = self.load_categories("categories.txt")
     def add_player(self,nick,player):
         self.players[nick] = player
     
@@ -37,9 +30,22 @@ class TuttiFrutti:
             self.table[new_cat] = ['-' for round in range(self.rounds)]
             for player in list(self.players.keys()):
                 self.match[player][new_cat] = ['-' for round in range(self.rounds)]
-        print("match",self.match)
+        # print("match",self.match)
                 
-    
+    def load_categories(self, categories_file):
+        try:
+            with open(categories_file, 'r') as file:
+                categories = [line.strip() for line in file.readlines()]
+            return categories
+        except FileNotFoundError:
+            print(f"El archivo de categorías '{categories_file}' no se encontró. Usando categorías predeterminadas.")
+            return [   "animales", "paises/ciudades",
+                       "nombres", "deportes/hobbies",
+                       "adjetivos", "comidas/bebidas",
+                       "marcas", "peliculas/series",
+                       "verbos", "colores",
+                       "trabajos", "juegos"
+                   ]
 
     def play(self):
         th_list = []
@@ -55,7 +61,7 @@ class TuttiFrutti:
             end = self.q.get()
             end_warning = end[0]+' gritó '+end[1][1:-2]
             self.status = False
-            print("Recibi:",end_warning)
+            # print("Recibi:",end_warning)
             
             
             for nick , player in list(self.players.items()):
@@ -70,7 +76,7 @@ class TuttiFrutti:
                 else:
                     player.send_msg("Fin del juego!\n\nCalculando puntajes...")
             time.sleep(3)
-            print(self.match)        
+            # print(self.match)        
         return (self.match)
                     
             

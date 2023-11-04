@@ -15,7 +15,6 @@ import socketserver , threading
 class Server:
     
     def __init__(self,port,backlog):
-        # self.host = host
         self.port = port
         self.backlog = backlog
         self.event = mp.Event()
@@ -26,15 +25,8 @@ class Server:
         self.set_socket()
         
     def set_socket(self):
-        # HOST = None
         for res in socket.getaddrinfo(None, self.port, socket.AF_UNSPEC, socket.SOCK_STREAM):
-            print("RES> ",res)
             family, socktype, proto, canonname, sockaddr = res
-            # print("family",family)
-            # print("tipo",socktype)
-            # print("proto",proto)
-            # print("canon",canonname)
-            # print("dir",sockaddr)
             threading.Thread(target=self.server, args=(family,sockaddr),daemon=False).start()
     
     
@@ -45,34 +37,6 @@ class Server:
         self.sock.listen(self.backlog)
         print(f"Server escuchando en {sockaddr[0]} > {sockaddr[1]}")
         self.serve()
-
-        # while True:
-        #     client, address = self.sock.accept()
-        #     print(f"Conexión desde {sockaddr[0]} > {address}")
-            
-            
-        
-        # direcciones = []
-        # direcciones.append(socket.getaddrinfo(self.host,self.port,socket.AF_INET,1)[0])
-        # direcciones.append(socket.getaddrinfo(self.host,self.port,socket.AF_INET6,1)[0])
-        # print(direcciones)
-        # threading.Thread(target=self.s_ipv4,args=(direcciones[0][4][0],self.port),daemon=False).start()
-
-    # def s_ipv4(self,host,inet,port):
-    #     self.sock4 = socket.socket(inet, socket.SOCK_STREAM)
-    #     self.sock4.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    #     self.sock4.bind((host, port))
-    #     self.sock4.listen(self.backlog)
-    #     print(f"Server escuchando en > [{host}]:[{port}]")
-    #     self.serve_ipv4()
-    
-    # def s_ipv6(self,host,port):        
-    #     self.sock6 = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
-    #     self.sock6.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    #     self.sock6.bind((host, port))
-    #     self.sock6.listen(self.backlog)
-    #     print(f"Server escuchando en IPv6 > [{host}]:[{port}]")
-    #     self.serve_ipv6()
         
     def serve(self,):
         pid = os.getpid()
@@ -87,24 +51,7 @@ class Server:
         
         except Exception as e:
             print(f"Error: {e}")
-            
-    # def serve_ipv6(self):
-    #     pid = os.getpid()
-    #     try:
-    #         while True:
-    #             pid += 1
-    #             client, address = self.sock6.accept()                                                            # El server solo acepta la conexión
-    #             print(f"Conexión IPv6 aceptada > {address[0]}:{address[1]}")            
-    #             mp.Process(target=self.handle,args=(client,pid,),daemon=True).start()
-    #     except KeyboardInterrupt:
-    #         print("Servidor apagado.")
-        
-    #     except Exception as e:
-    #         print(f"Error: {e}")
-    
-    
-        
-    
+ 
 
     def handle(self,client,pid):
         nick = get_msg(client)
@@ -165,25 +112,27 @@ class Server:
 
     
     def build_match(self,client):
-        size = None; cats = None ; rounds = None
+        # size = None; cats = None ; rounds = None
+        params = [None,None,None]
         client.sendall("Perfecto, Vamos a crear tu partida!".encode())
-        while size == None:
-            client.sendall("Porfavor ingresa cuantos jugadores quieres que participen (se permiten desde 2 hasta 5 jugadores)".encode())
-            input = get_msg(client)
-            if 2 <= int(input) <= 5:
-                size = int(input)
-        while cats == None:
-            client.sendall("Porfavor ingresa cuantas categorias quieres que hayan (se permiten desde 2 hasta 5 categorias".encode())
-            input = get_msg(client)
-            if 2 <= int(input) <= 5:
-                cats = int(input)
-        while rounds == None:
-            client.sendall("Porfavor ingresa cuantas rondas quieres que se jueguen (se permiten desde 2 hasta 5 rondas)".encode())
-            input = get_msg(client)
-            if 2 <= int(input) <= 5:
-                rounds = int(input)
+        msjs = ["Porfavor ingresa cuantos jugadores quieres que participen (se permiten desde 2 hasta 5 jugadores)",
+                "Porfavor ingresa cuantas categorias quieres que hayan (se permiten desde 2 hasta 5 categorias"    ,
+                "Porfavor ingresa cuantas rondas quieres que se jueguen (se permiten desde 2 hasta 5 rondas)"      ]
+        for i in range(3):
+            client.sendall(msjs[i].encode())
+            while params[i] == None:
+                input = get_msg(client)
+                try:
+                    input =  int(input)
+                    if input < 2 or input > 5:
+                        raise Exception()
+                    else:
+                        params[i] = int(input)    
+                except Exception:
+                    client.sendall("El valor ingresado no es válido. Debe ser un número entre 2 y 5.".encode())                    
+        
         client.sendall("Listo! Ahora esperaremos hasta que los demás jugadores se unan".encode())    
-        return size,cats,rounds   
+        return params[0],params[1],params[2]   
     
         
     def esperar_jugadores(self,code,owner,size):                                                            # Entran solo los procesos cuyo cliente quiera crear una partida
@@ -211,9 +160,8 @@ def get_msg(client):
   
 
 @click.command()
-# @click.option("--host", "-h", default="localhost", help="Dirección IPv4 deseada para el host")
-@click.option("--port", "-p", default=8000, type=int, help="")
-@click.option("--backlog", "-l", default=5, type=int, help="")
+@click.option("--port", "-p", default=8000, type=int, help="Puerto en el que el servido estará escuchando")
+@click.option("--backlog", "-l", default=5, type=int, help="Backlog")
 
 def clic(port,backlog):
     Server(port,backlog)
