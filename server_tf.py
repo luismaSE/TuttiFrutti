@@ -14,8 +14,8 @@ import socketserver , threading
 
 class Server:
     
-    def __init__(self,host,port,backlog):
-        self.host = host
+    def __init__(self,port,backlog):
+        # self.host = host
         self.port = port
         self.backlog = backlog
         self.event = mp.Event()
@@ -26,35 +26,61 @@ class Server:
         self.set_socket()
         
     def set_socket(self):
-        direcciones = []
-        direcciones.append(socket.getaddrinfo(self.host,self.port,socket.AF_INET,1)[0])
-        direcciones.append(socket.getaddrinfo(self.host,self.port,socket.AF_INET6,1)[0])
-        threading.Thread(target=self.s_ipv4,args=(direcciones[0][4][0],self.port),daemon=False).start()
-        threading.Thread(target=self.s_ipv6,args=(direcciones[1][4][0],self.port+1),daemon=False).start()
-
-    def s_ipv4(self,host,port):
-        self.sock4 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock4.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.sock4.bind((host, port))
-        self.sock4.listen(self.backlog)
-        print(f"Server escuchando en IPv4 > [{host}]:[{port}]")
-        self.serve_ipv4()
+        # HOST = None
+        for res in socket.getaddrinfo(None, self.port, socket.AF_UNSPEC, socket.SOCK_STREAM):
+            print("RES> ",res)
+            family, socktype, proto, canonname, sockaddr = res
+            # print("family",family)
+            # print("tipo",socktype)
+            # print("proto",proto)
+            # print("canon",canonname)
+            # print("dir",sockaddr)
+            threading.Thread(target=self.server, args=(family,sockaddr),daemon=False).start()
     
-    def s_ipv6(self,host,port):        
-        self.sock6 = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
-        self.sock6.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.sock6.bind((host, port))
-        self.sock6.listen(self.backlog)
-        print(f"Server escuchando en IPv6 > [{host}]:[{port}]")
-        self.serve_ipv6()
+    
+    def server(self, family,sockaddr):
+        self.sock = socket.socket(family, socket.SOCK_STREAM)
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.sock.bind((sockaddr[0],sockaddr[1]))
+        self.sock.listen(self.backlog)
+        print(f"Server escuchando en {sockaddr[0]} > {sockaddr[1]}")
+        self.serve()
+
+        # while True:
+        #     client, address = self.sock.accept()
+        #     print(f"Conexión desde {sockaddr[0]} > {address}")
+            
+            
         
-    def serve_ipv4(self):
+        # direcciones = []
+        # direcciones.append(socket.getaddrinfo(self.host,self.port,socket.AF_INET,1)[0])
+        # direcciones.append(socket.getaddrinfo(self.host,self.port,socket.AF_INET6,1)[0])
+        # print(direcciones)
+        # threading.Thread(target=self.s_ipv4,args=(direcciones[0][4][0],self.port),daemon=False).start()
+
+    # def s_ipv4(self,host,inet,port):
+    #     self.sock4 = socket.socket(inet, socket.SOCK_STREAM)
+    #     self.sock4.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    #     self.sock4.bind((host, port))
+    #     self.sock4.listen(self.backlog)
+    #     print(f"Server escuchando en > [{host}]:[{port}]")
+    #     self.serve_ipv4()
+    
+    # def s_ipv6(self,host,port):        
+    #     self.sock6 = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
+    #     self.sock6.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    #     self.sock6.bind((host, port))
+    #     self.sock6.listen(self.backlog)
+    #     print(f"Server escuchando en IPv6 > [{host}]:[{port}]")
+    #     self.serve_ipv6()
+        
+    def serve(self,):
         pid = os.getpid()
         try:
             while True:
                 pid += 1
-                client, address = self.sock4.accept()                                                            # El server solo acepta la conexión
-                print(f"Conexión IPv4 aceptada > {address[0]}:{address[1]}")            
+                client, address = self.sock.accept()                                                            # El server solo acepta la conexión
+                print(f"Conexión aceptada > {address[0]}:{address[1]}")            
                 mp.Process(target=self.handle,args=(client,pid,),daemon=True).start()
         except KeyboardInterrupt:
             print("Servidor apagado.")
@@ -62,19 +88,19 @@ class Server:
         except Exception as e:
             print(f"Error: {e}")
             
-    def serve_ipv6(self):
-        pid = os.getpid()
-        try:
-            while True:
-                pid += 1
-                client, address = self.sock6.accept()                                                            # El server solo acepta la conexión
-                print(f"Conexión IPv6 aceptada > {address[0]}:{address[1]}")            
-                mp.Process(target=self.handle,args=(client,pid,),daemon=True).start()
-        except KeyboardInterrupt:
-            print("Servidor apagado.")
+    # def serve_ipv6(self):
+    #     pid = os.getpid()
+    #     try:
+    #         while True:
+    #             pid += 1
+    #             client, address = self.sock6.accept()                                                            # El server solo acepta la conexión
+    #             print(f"Conexión IPv6 aceptada > {address[0]}:{address[1]}")            
+    #             mp.Process(target=self.handle,args=(client,pid,),daemon=True).start()
+    #     except KeyboardInterrupt:
+    #         print("Servidor apagado.")
         
-        except Exception as e:
-            print(f"Error: {e}")
+    #     except Exception as e:
+    #         print(f"Error: {e}")
     
     
         
@@ -185,12 +211,12 @@ def get_msg(client):
   
 
 @click.command()
-@click.option("--host", "-h", default="localhost", help="Dirección IPv4 deseada para el host")
+# @click.option("--host", "-h", default="localhost", help="Dirección IPv4 deseada para el host")
 @click.option("--port", "-p", default=8000, type=int, help="")
 @click.option("--backlog", "-l", default=5, type=int, help="")
 
-def clic(host,port,backlog):
-    Server(host,port,backlog)
+def clic(port,backlog):
+    Server(port,backlog)
     
 def wait_for_proc(proc):
     proc.join()
